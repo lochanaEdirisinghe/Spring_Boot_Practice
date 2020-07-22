@@ -3,6 +3,7 @@ package lk.lochana.pos.service.Impl;
 
 import lk.lochana.pos.dto.CustomerDto;
 import lk.lochana.pos.entity.Customer;
+import lk.lochana.pos.handler.AppException;
 import lk.lochana.pos.repository.CustomerRepository;
 import lk.lochana.pos.service.CustomerService;
 
@@ -29,7 +30,7 @@ public class CustomerServiceImpl implements CustomerService{
     @Override
     public void saveCustomer(CustomerDto customerdto) {
         if(cusRepo.existsById(customerdto.getId())){
-            throw new RuntimeException("Customer already exist");
+            throw new AppException("Customer already exist");
         }
         Customer customer = modelMapper.map(customerdto, Customer.class);
         cusRepo.save(customer);
@@ -38,7 +39,7 @@ public class CustomerServiceImpl implements CustomerService{
     @Override
     public void deleteCustomer(String id) {
         if(!cusRepo.existsById(id)){
-            throw new RuntimeException("No such customer");
+            throw new AppException("No such customer");
         }
         Optional<Customer> customer = cusRepo.findById(id);
         cusRepo.delete(customer.get());
@@ -47,7 +48,7 @@ public class CustomerServiceImpl implements CustomerService{
     @Override
     public void updateCustomer(CustomerDto customerdto) {
         if(!cusRepo.existsById(customerdto.getId())){
-            throw new RuntimeException("No such customer to update");
+            throw new AppException("No such customer to update");
         }
         Customer customer = modelMapper.map(customerdto, Customer.class);
         cusRepo.save(customer);
@@ -56,7 +57,7 @@ public class CustomerServiceImpl implements CustomerService{
     @Override
     public CustomerDto searchCustomer(String id) {
         if(!cusRepo.existsById(id)){
-            throw new RuntimeException("No such customer");
+            throw new AppException("No such customer");
         }
         return modelMapper.map(cusRepo.findById(id).get(), CustomerDto.class);
     }
@@ -66,6 +67,15 @@ public class CustomerServiceImpl implements CustomerService{
         List<Customer> all = cusRepo.findAll();
         return modelMapper.map(all, new TypeToken<List<Customer>>(){}.getType());
 
+    }
+
+    @Override
+    public CustomerDto getMyCustomer(String id) {
+        if(!cusRepo.existsById(id)){
+            throw new AppException("No such query customer");
+        }
+        Optional<Customer> myCustomer = cusRepo.getMyCustomer(id);
+        return modelMapper.map(myCustomer.get(), CustomerDto.class);
     }
 
 }
